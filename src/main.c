@@ -1060,12 +1060,12 @@ reset_jobserver (void)
   jobserver_auth = NULL;
 }
 
-#ifdef _AMIGA
+#if defined _AMIGA || defined __wasi__
 int
 main (int argc, char **argv)
 #else
 int
-main (int argc, char **argv, char **envp)
+__main (int argc, char **argv, char **envp)
 #endif
 {
   static char *stdin_nm = 0;
@@ -1087,6 +1087,10 @@ main (int argc, char **argv, char **envp)
 #endif
 
   initialize_variable_output ();
+
+#ifdef __wasi__
+  char **envp = {0};
+#endif
 
   /* Useful for attaching debuggers, etc.  */
   SPIN ("main-entry");
@@ -3533,3 +3537,4 @@ die (int status)
 
   exit (status);
 }
+

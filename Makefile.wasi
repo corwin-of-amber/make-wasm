@@ -1,0 +1,102 @@
+CC = /opt/wasi-sdk/bin/clang
+INC = -I. -Ilib  -Isrc -Iwasi -include wasi/etc.h
+CFLAGS = $(INC) -O3 -Wno-dangling-else -DHAVE_CONFIG_H -D__GNU_LIBRARY__
+# -fblocks  -Wno-tautological-constant-out-of-range-compare 
+LDFLAGS = -Wl,-allow-undefined
+
+prefix = /usr
+exec_prefix =
+
+libdir=$(exec_prefix)/lib
+includedir=$(prefix)/include
+localedir=$(prefix)/share/locale
+
+CFLAGS += -DLOCALEDIR='"$(localedir)"' -DLIBDIR='"$(libdir)"' -DINCLUDEDIR='"$(includedir)"'
+
+
+AR = /opt/wasi-sdk/bin/llvm-ar
+
+PROGS = make
+
+libmakeutils.a_OBJ = ${addprefix lib/, ${filter %.o, ${shell ar t lib/libmakeutils.a}}}
+libmakeutils.wa_OBJ = $(libmakeutils.wa_SRC:.c=.wo)
+
+all: ${foreach p, $(PROGS), bin/$(p).wasm}
+
+reconfigure:
+	cp wasi-preconf/config.h src/
+
+%.wo: %.c
+	$(CC) $(CFLAGS) -c $^ -o $@
+
+
+gnulib_SRC = \
+concat-filename.c  \
+dirname-lgpl.c  \
+basename-lgpl.c  \
+stripslash.c  \
+exitfail.c  \
+fd-hook.c  \
+findprog-in.c  \
+getprogname.c  \
+fnmatch.c  \
+glob.c  \
+getloadavg.c \
+unistd.c  \
+xmalloc.c  \
+xalloc-die.c  \
+xconcat-filename.c  \
+error.c  \
+strerror.c  \
+strerror-override.c
+
+make_BASE_SRC = \
+ar.c  \
+arscan.c  \
+commands.c  \
+default.c  \
+dir.c  \
+expand.c  \
+file.c  \
+function.c  \
+getopt.c  \
+getopt1.c  \
+guile.c  \
+hash.c  \
+implicit.c  \
+job.c  \
+load.c  \
+loadapi.c  \
+main.c  \
+misc.c  \
+output.c  \
+read.c  \
+remake.c  \
+rule.c  \
+signame.c  \
+strcache.c  \
+variable.c  \
+version.c  \
+vpath.c  \
+posixos.c  \
+remote-stub.c
+
+
+libmakeutils.wa_SRC = ${addprefix lib/, $(gnulib_SRC)}
+
+lib/libmakeutils.wa: $(libmakeutils.wa_OBJ)
+	$(AR) cr $@ $^
+
+
+make_SRC = ${addprefix src/, $(make_BASE_SRC)}
+
+force:
+
+bin/%.wasm: $($*_SRC) lib/libmakeutils.wa force
+	@mkdir -p bin
+	$(CC) $(CFLAGS) -o $@ $($*_SRC) lib/libmakeutils.wa $(LDFLAGS)
+
+.PHONY: clean
+
+clean:
+	rm -f src/*.wo lib/*.wo lib/*.wa

@@ -1259,7 +1259,11 @@ read_dirstream (__ptr_t stream)
           /* The glob interface wants a 'struct dirent', so mock one up.  */
           struct dirent *d;
           size_t len = df->length + 1;
+#ifdef __wasi__
+          size_t sz = sizeof (*d) + len;  /* wasi-sdk has 'char d_name[]' in dirent */
+#else
           size_t sz = sizeof (*d) - sizeof (d->d_name) + len;
+#endif
           if (sz > bufsz)
             {
               bufsz *= 2;

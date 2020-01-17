@@ -11,6 +11,8 @@ GTAGS
 *~
 #*
 .#*
+.*.swp
+/wasi
 
 # Configure artifacts
 ABOUT-NLS
@@ -34,6 +36,7 @@ gnulib
 
 # Build artifacts
 .deps/
+bin/
 gmk-default.h
 loadavg
 make
