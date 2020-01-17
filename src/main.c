@@ -1089,7 +1089,8 @@ __main (int argc, char **argv, char **envp)
   initialize_variable_output ();
 
 #ifdef __wasi__
-  char **envp = {0};
+  extern char **__environ;
+  char **envp = __environ; //argv + argc + 1;
 #endif
 
   /* Useful for attaching debuggers, etc.  */
