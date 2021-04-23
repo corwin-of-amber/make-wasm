@@ -1,0 +1,8 @@
+{
+    "make": {
+        "output": "bin/make.wasm",
+        "args": ["-lwasi-emulated-signal", "lib/getloadavg.c",
+            "-Wl,-allow-undefined", "-Wl,--import-table", "-Wl,--export-all"],
+        "noargs": ["re:^-Wl", "re:^-rdynamic"]
+    }
+}

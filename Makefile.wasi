@@ -1,8 +1,8 @@
 CC = /opt/wasi-sdk/bin/clang
 INC = -I. -Ilib  -Isrc -Iwasi -include wasi/etc.h
-CFLAGS = $(INC) -O3 -Wno-dangling-else -DHAVE_CONFIG_H -D__GNU_LIBRARY__
+CFLAGS = $(INC) -O3 -Wno-dangling-else -Wno-string-compare -DHAVE_CONFIG_H -D__GNU_LIBRARY__
 # -fblocks  -Wno-tautological-constant-out-of-range-compare 
-LDFLAGS = -Wl,-allow-undefined
+LDFLAGS = -Wl,-allow-undefined -lwasi-emulated-signal
 
 prefix = /usr
 exec_prefix =
@@ -18,8 +18,11 @@ AR = /opt/wasi-sdk/bin/llvm-ar
 
 PROGS = make
 
-libmakeutils.a_OBJ = ${addprefix lib/, ${filter %.o, ${shell ar t lib/libmakeutils.a}}}
-libmakeutils.wa_OBJ = $(libmakeutils.wa_SRC:.c=.wo)
+libmakeutils.a_OBJ = ${addprefix lib/, ${filter %.o, ${shell ar t lib/libgnu.a}}}
+libmakeutils.wa_OBJ = ${filter-out $(EXCLUDE), ${libmakeutils.a_OBJ:.o=.wo}} lib/getloadavg.wo
+#libmakeutils.wa_OBJ = $(libmakeutils.wa_SRC:.c=.wo)
+
+EXCLUDE = #lib/open.wo
 
 all: ${foreach p, $(PROGS), bin/$(p).wasm}
 
@@ -82,7 +85,7 @@ posixos.c  \
 remote-stub.c
 
 
-libmakeutils.wa_SRC = ${addprefix lib/, $(gnulib_SRC)}
+#libmakeutils.wa_SRC = ${addprefix lib/, $(gnulib_SRC)}
 
 lib/libmakeutils.wa: $(libmakeutils.wa_OBJ)
 	$(AR) cr $@ $^

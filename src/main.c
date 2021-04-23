@@ -1063,6 +1063,9 @@ reset_jobserver (void)
 #if defined _AMIGA || defined __wasi__
 int
 main (int argc, char **argv)
+#elif defined __clang__
+int
+main (int argc, char **argv, char **envp)
 #else
 int
 __main (int argc, char **argv, char **envp)
@@ -1089,8 +1092,8 @@ __main (int argc, char **argv, char **envp)
   initialize_variable_output ();
 
 #ifdef __wasi__
-  extern char **__environ;
-  char **envp = __environ; //argv + argc + 1;
+  extern char **__wasilibc_environ;
+  char **envp = __wasilibc_environ;
 #endif
 
   /* Useful for attaching debuggers, etc.  */

@@ -12,7 +12,6 @@ GTAGS
 #*
 .#*
 .*.swp
-/wasi
 
 # Configure artifacts
 ABOUT-NLS
@@ -24,7 +23,7 @@ aclocal.m4
 autom4te.cache/
 build-aux/
 config.cache
-config.h
+/src/config.h
 config.h.in
 config.log
 config.status
@@ -49,6 +48,9 @@ make
 *.lib
 *.pdb
 *.sbr
+
+*.wo
+*.wasm
 
 # Windows build artifacts
 WinDebug/

@@ -1,0 +1,4 @@
+./configure
+# some of the flags are incompat with clang :s
+LC_ALL=C wasi-kit make MAKE_CFLAGS=
+
